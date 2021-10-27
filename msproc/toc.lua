@@ -1,14 +1,13 @@
 return {
+  name = "msproc",
   title = "msproc",
   author = "ars",
-  name = "msproc",
   units = {
     {
       -- Title and category control how this unit appears in the unit browser.
-      title = "msproc",
-      category = "Learning",
-      -- Which lua module contains the unit definition?
+      title = "stereo width",
       moduleName = "msproc",
+      category = "Experimental",
     },
   }
 }

@@ -1,114 +1,78 @@
-local app = app
-local libMsproc = require "msproc.libMsproc"
+local lib = require "msproc.libmsproc"
 local Class = require "Base.Class"
 local Unit = require "Unit"
-local Fader = require "Unit.ViewControl.Fader"
-local Gate = require "Unit.ViewControl.Gate"
-local CatCircle = require "tutorial.CatCircle"
+local Pitch = require "Unit.ViewControl.Pitch"
 local GainBias = require "Unit.ViewControl.GainBias"
+local Gate = require "Unit.ViewControl.Gate"
 local Encoder = require "Encoder"
 
-local EuclidsCatsUnit = Class {}
-EuclidsCatsUnit:include(Unit)
+local msproc = Class {}
+msproc:include(Unit)
 
-function EuclidsCatsUnit:init(args)
-  args.title = "Euclid's CVCats"
-  args.mnemonic = "Eu"
+function msproc:init(args)
+  args.title = "msproc"
+  args.mnemonic = "MS"
   Unit.init(self, args)
 end
 
-function EuclidsCatsUnit:onLoadGraph(channelCount)
-  local clockComparator = self:addObject("clockComparator", app.Comparator())
-  clockComparator:setTriggerMode()
-  local resetComparator = self:addObject("resetComparator", app.Comparator())
-  resetComparator:setTriggerMode()
-  local cats = self:addObject("cats", app.GainBias())
-  local catsRange = self:addObject("catsRange", app.MinMax())
-  local euclid = self:addObject("euclid", libFoo.EuclideanSequencer(32))
+function msproc:onLoadGraph(channelCount)
+  local ms = self:addObject("ms", lib.msproc())
 
-  connect(clockComparator, "Out", euclid, "Trigger")
-  connect(resetComparator, "Out", euclid, "Reset")
-  connect(cats, "Out", euclid, "Cats")
-  connect(euclid, "Out", self, "Out1")
-  connect(cats, "Out", catsRange, "In")
+  local mAmount = self:addObject("mAmt", app.ParameterAdapter())
+  local sAmount = self:addObject("sAmt", app.ParameterAdapter())
 
-  self:addMonoBranch("clock", clockComparator, "In", clockComparator, "Out")
-  self:addMonoBranch("reset", resetComparator, "In", resetComparator, "Out")
-  self:addMonoBranch("catsBranch", cats, "In", cats, "Out")
+  tie(ms, "mAmt", mAmount, "Out")
+  self:addMonoBranch("mBranch", mAmount, "In", mAmount, "Out")
 
-  if channelCount > 1 then connect(euclid, "Out", self, "Out2") end
+  tie(ms, "sAmt", sAmount, "Out")
+  self:addMonoBranch("sBranch", sAmount, "In", sAmount, "Out")
+
+  connect(ms, "OutL", self, "Out1")
+  connect(self, "In1", ms, "InL")
+
+  if channelCount == 1 then
+    connect(self, "In1", ms, "InR")
+  else
+    connect(self, "In2", ms, "InR")
+    connect(ms, "OutR", self, "Out2")
+  end
 end
 
 local views = {
   expanded = {
-    "clock",
-    "reset",
-    "cats",
-    "boxes",
-    "circle"
+    "m",
+	"s",
   },
-  collapsed = {}
+  collapsed = {},
 }
 
-function EuclidsCatsUnit:onLoadViews(objects, branches)
+function msproc:onLoadViews(objects, branches)
   local controls = {}
 
-  controls.clock = Gate {
-    button = "clock",
-    description = "Clock Input",
-    branch = branches.clock,
-    comparator = objects.clockComparator
-  }
-
-  controls.reset = Gate {
-    button = "reset",
-    description = "Reset Input",
-    branch = branches.reset,
-    comparator = objects.resetComparator
-  }
-  controls.cats = GainBias {
-    button = "cats",
-    branch = branches.catsBranch,
-    description = "Cat Count",
-    gainbias = objects.cats,
-    range = objects.catsRange,
-    biasMap = Encoder.getMap("int[0,32]"),
+  controls.m = GainBias {
+    button = "m",
+    description = "m",
+    branch = branches.mBranch,
+    gainbias = objects.mAmt,
+    range = objects.mAmt,
     biasUnits = app.unitNone,
-    initialBias = 0,
-    biasPrecision = 0,
-    gainPrecision = 0,
-    initialGain = 5,
-    gainMap = Encoder.getMap("int[-32,32]"),
-  }
-  -- controls.cats = Fader {
-  --  button = "cats",
-  --  description = "Cat Count",
-  --  param = objects.euclid:getParameter("Cats"),
-  --  monitor = self,
-  --   Using canned map (if the one you need is not available, you can create your own.)
-  --  map = Encoder.getMap("int[0,32]"),
-  --  precision = 0,
-  --  initial = 0,
-  --  units = app.unitNone
-  -- }
-
-  controls.boxes = Fader {
-    button = "boxes",
-    description = "Box Count",
-    param = objects.euclid:getParameter("Boxes"),
-    monitor = self,
-    -- Using canned map (if the one you need is not available, you can create your own.)
-    map = Encoder.getMap("int[1,32]"),
-    precision = 0,
-    initial = 1,
-    units = app.unitNone
+    biasMap = Encoder.getMap("[0,1]"),
+    initialBias = 1,
   }
 
-  controls.circle = CatCircle {
-    sequencer = objects.euclid
+  controls.s = GainBias {
+    button = "s",
+    description = "s",
+    branch = branches.sBranch,
+    gainbias = objects.sAmt,
+    range = objects.sAmt,
+    biasUnits = app.unitNone,
+	biasMap = Encoder.getMap("[0,1]"),
+    initialBias = 1,
   }
+
 
   return controls, views
 end
 
-return EuclidsCatsUnit
+return msproc
