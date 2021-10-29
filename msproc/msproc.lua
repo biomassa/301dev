@@ -1,9 +1,9 @@
 local lib = require "msproc.libmsproc"
 local Class = require "Base.Class"
 local Unit = require "Unit"
-local Pitch = require "Unit.ViewControl.Pitch"
+--local Pitch = require "Unit.ViewControl.Pitch"
 local GainBias = require "Unit.ViewControl.GainBias"
-local Gate = require "Unit.ViewControl.Gate"
+--local Gate = require "Unit.ViewControl.Gate"
 local Encoder = require "Encoder"
 
 local msproc = Class {}
@@ -57,7 +57,7 @@ function msproc:onLoadViews(objects, branches)
     range = objects.mAmt,
     biasUnits = app.unitNone,
     biasMap = Encoder.getMap("[0,1]"),
-    initialBias = 1,
+    initialBias = 0.5,
   }
 
   controls.s = GainBias {
@@ -68,7 +68,7 @@ function msproc:onLoadViews(objects, branches)
     range = objects.sAmt,
     biasUnits = app.unitNone,
 	biasMap = Encoder.getMap("[0,1]"),
-    initialBias = 1,
+    initialBias = 0.5,
   }
 
 
