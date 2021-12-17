@@ -1,9 +1,7 @@
 local lib = require "wf259.libwf259"
 local Class = require "Base.Class"
 local Unit = require "Unit"
---local Pitch = require "Unit.ViewControl.Pitch"
 local GainBias = require "Unit.ViewControl.GainBias"
---local Gate = require "Unit.ViewControl.Gate"
 local Encoder = require "Encoder"
 
 local wf259 = Class {}
@@ -34,14 +32,6 @@ function wf259:onLoadGraph(channelCount)
   connect(wf, "OutL", self, "Out1")
   connect(self, "In1", wf, "InL")
 
-	  -- looky here if this doesn't compile!
-
-  if channelCount == 1 then
-    connect(self, "In1", wf, "InR")
-  else
-    connect(self, "In2", wf, "InR")
-    connect(wf, "OutR", self, "Out2")
-  end
 end
 
 local views = {

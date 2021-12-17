@@ -35,8 +35,8 @@ wf(sig) = sig <: ( (folderBranches(sig) :> _) + (5.*sig:fi.lowpass(5,SR/2.6)) ):
 
 // Name the ins and outs of the `process` function for use in the er-301 object
 declare er301_in1 "InL";
-declare er301_in2 "InR";
+// declare er301_in2 "InR";
 declare er301_out1 "OutL";
-declare er301_out2 "OutR";
+// declare er301_out2 "OutR";
 
 process = (_*term1(0)*scale(fold,0.,1.,1.,20.) + scale(offset,-1,1,0-term1(2),term1(2))) : wf(_)/6. : ef.cubicnl(0.0,0):fi.dcblockerat(10);
