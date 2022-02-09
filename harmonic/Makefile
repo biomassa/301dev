@@ -18,7 +18,7 @@
 
 # Override these defaults on the commandline:
 PKGNAME ?= harmonic
-PKGVERSION ?= 0.0.1
+PKGVERSION ?= 0.0.2
 
 # Describe your files to this makefile:
 assets = toc.lua harmonic.lua
