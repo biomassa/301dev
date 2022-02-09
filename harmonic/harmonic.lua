@@ -396,7 +396,7 @@ function Harmonic:onLoadGraph(channelCount)
 
     -- Handle stereo case here by connecting up the 2nd channel as well.
     if channelCount > 1 then
-        connect(self.objects.myMixer, "Out", self, "Out2")
+        connect(self.objects.limiter, "Out", self, "Out2")
     end
 end
 
