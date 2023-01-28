@@ -14,4 +14,4 @@ Thanks ljw!
 
 TODO:
 
-- *make an effect that would allow separate processing for M and S*
+- *make an effect that would allow separate processing for M and S*?
